@@ -1,7 +1,6 @@
 package com.wigroup.composition2.presentation
 
 import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,17 +9,19 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.wigroup.composition2.R
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.wigroup.composition2.databinding.FragmentGameBinding
 import com.wigroup.composition2.domain.entity.GameResult
-import com.wigroup.composition2.domain.entity.Level
 
 class GameFragment : Fragment() {
+
+    private val args by navArgs<GameFragmentArgs>()
 
     private val viewModel by lazy {
         ViewModelProvider(
             this,
-            GameViewModel.getFactory(requireActivity().application, level)
+            GameViewModel.getFactory(requireActivity().application, args.level)
         )[GameViewModel::class.java]
     }
 
@@ -34,16 +35,10 @@ class GameFragment : Fragment() {
             add(binding.tvOption6)
         }
     }
-    private lateinit var level: Level
 
     private var _binding: FragmentGameBinding? = null
     private val binding: FragmentGameBinding
         get() = _binding ?: throw RuntimeException("FragmentGameBinding == null")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        parseArgs()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,35 +108,9 @@ class GameFragment : Fragment() {
         return ContextCompat.getColor(requireContext(), colorResId)
     }
 
-    private fun parseArgs() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireArguments().getParcelable(KEY_LEVEL, Level::class.java)?.let {
-                level = it
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            requireArguments().getParcelable<Level>(KEY_LEVEL)?.let {
-                level = it
-            }
-        }
-    }
-
     private fun launchGameFinishedFragment(gameResult: GameResult) {
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.main_container, GameFinishedFragment.newInstance(gameResult))
-            .addToBackStack(null)
-            .commit()
-    }
-
-    companion object {
-
-        const val NAME = "GameFragment"
-        private const val KEY_LEVEL = "level"
-
-        fun newInstance(level: Level): GameFragment = GameFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable(KEY_LEVEL, level)
-            }
-        }
+        findNavController().navigate(
+            GameFragmentDirections.actionGameFragmentToGameFinishedFragment(gameResult)
+        )
     }
 }
