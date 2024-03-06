@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.wigroup.composition2.R
 import com.wigroup.composition2.databinding.FragmentGameFinishedBinding
 
 class GameFinishedFragment : Fragment() {
@@ -30,46 +29,16 @@ class GameFinishedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupClickListeners()
-        bindViews()
-    }
-
-    private fun bindViews() {
-        with(binding) {
-            emojiResult.setImageResource(getSmileResId())
-            tvRequiredAnswers.text = String.format(
-                getString(R.string.required_score),
-                args.gameResult.gameSettings.minCountOfRightAnswers,
-            )
-            tvScoreAnswers.text = String.format(
-                getString(R.string.score_answers),
-                args.gameResult.gameSettings.minCountOfRightAnswers,
-            )
-            tvRequiredPercentage.text = String.format(
-                getString(R.string.required_percentage),
-                args.gameResult.gameSettings.minPercentOfRightAnswers,
-            )
-            tvScorePercentage.text = String.format(
-                getString(R.string.score_percentage),
-                getPercentOfRightAnswers(),
-            )
-        }
-    }
-
-    private fun getSmileResId(): Int =
-        if (args.gameResult.winner) R.drawable.ic_smile else R.drawable.ic_sad
-
-    private fun getPercentOfRightAnswers() = with(args.gameResult) {
-        if (countOfQuestions == 0) 0
-        else ((countOfRightAnswers / countOfQuestions.toDouble()) * 100).toInt()
-    }
-
-    private fun setupClickListeners() {
-        binding.buttonRetry.setOnClickListener { retryGame() }
+        binding.gameResult = args.gameResult
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setupClickListeners() {
+        binding.buttonRetry.setOnClickListener { retryGame() }
     }
 
     private fun retryGame() {
